@@ -1,0 +1,132 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+```yaml
+---
+description: AWS Specialist configuration for automating React app deployment to S3 static site and configuring Amazon Cognito for authentication
+globs: 
+alwaysApply: false
+---
+# AWS Specialist Configuration
+
+## Project Configuration
+- **Framework**: React (latest version) with TypeScript
+- **Environment**: Node.js
+- **Deployment Target**: AWS S3 for static site hosting
+- **Authentication**: Amazon Cognito for user authentication
+- **Infrastructure**: AWS CLI and AWS SDK for automation
+- **CI/CD**: AWS CodePipeline or GitHub Actions (optional)
+
+## Authentication
+- **Technology**: Amazon Cognito User Pools
+- **Implementation**:
+  - Use AWS Cognito for user authentication (Email/Password, Social Sign-In)
+  - Configure user pools and identity providers remotely via AWS CLI
+  - Integrate with React app using AWS Amplify or Cognito SDK
+  - Support for mock/real implementations for testing
+  - Secure storage of credentials using AWS Secrets Manager
+
+## Development Standards
+### Code Style
+- ES6+ syntax required
+- TypeScript for type safety
+- Airbnb TypeScript/React style guide
+- No hardcoded credentials; use environment variables or AWS Secrets Manager
+- Use AWS SDK for programmatic access to AWS services
+
+### Deployment Guidelines
+- **Build**: Create optimized React production build for S3 deployment
+- **Hosting**: Deploy to S3 bucket configured for static website hosting
+- **Distribution**: Use Amazon CloudFront for CDN (optional)
+- **Permissions**: Configure S3 bucket policies and IAM roles for secure access
+- **Automation**: Use AWS CLI for deployment and Cognito configuration
+
+## AWS CLI Commands
+@CLICommands("React Build and S3 Deployment")
+```bash
+# Install AWS CLI (if not already installed)
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+# Configure AWS CLI with credentials
+aws configure
+
+# Create S3 bucket for static site
+aws s3api create-bucket --bucket my-react-app-bucket --region us-east-1
+
+# Enable static website hosting on S3 bucket
+aws s3api put-bucket-website --bucket my-react-app-bucket --website-configuration '{"IndexDocument":{"Suffix":"index.html"},"ErrorDocument":{"Key":"error.html"}}'
+
+# Set bucket policy for public read access
+aws s3api put-bucket-policy --bucket my-react-app-bucket --policy '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::my-react-app-bucket/*"}]}'
+
+# Build React app
+npm run build
+
+# Sync build folder to S3 bucket
+aws s3 sync ./build/ s3://my-react-app-bucket --delete
+```
+
+@CLICommands("Amazon Cognito Configuration")
+```bash
+# Create Cognito User Pool
+aws cognito-idp create-user-pool --pool-name MyReactAppUserPool --region us-east-1 --policies '{"PasswordPolicy":{"MinimumLength":8,"RequireLowercase":true,"RequireNumbers":true,"RequireSymbols":true,"RequireUppercase":true}}'
+
+# Get User Pool ID (save for later use)
+aws cognito-idp list-user-pools --max-results 10
+
+# Create Cognito User Pool Client
+aws cognito-idp create-user-pool-client --user-pool-id <UserPoolId> --client-name MyReactAppClient --no-generate-secret --explicit-auth-flows "ALLOW_USER_PASSWORD_AUTH" "ALLOW_REFRESH_TOKEN_AUTH"
+
+# Get Client ID (save for integration)
+aws cognito-idp list-user-pool-clients --user-pool-id <UserPoolId>
+
+# Enable Google as an identity provider (requires Google OAuth setup)
+aws cognito-idp create-identity-provider --user-pool-id <UserPoolId> --provider-name Google --provider-type Google --provider-details '{"client_id":"<GoogleClientId>","client_secret":"<GoogleClientSecret>","authorize_scopes":"profile email openid"}'
+
+# Update User Pool to support identity provider
+aws cognito-idp update-user-pool --user-pool-id <UserPoolId> --lambda-config '{"PreSignUp":"arn:aws:lambda:us-east-1:<AccountId>:function:PreSignUp"}' --auto-verified-attributes "email"
+
+# Create IAM role for Cognito access
+aws iam create-role --role-name CognitoAccessRole --assume-role-policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"cognito-idp.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+
+# Attach policy to IAM role
+aws iam put-role-policy --role-name CognitoAccessRole --policy-name CognitoPolicy --policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"cognito-idp:*","Resource":"*"}]}'
+```
+
+@CLICommands("Optional CloudFront Setup")
+```bash
+# Create CloudFront distribution for S3 bucket
+aws cloudfront create-distribution --distribution-config '{"CallerReference":"my-react-app-$(date +%s)","DefaultRootObject":"index.html","Origins":{"Quantity":1,"Items":[{"Id":"S3-my-react-app-bucket","DomainName":"my-react-app-bucket.s3.amazonaws.com","S3OriginConfig":{"OriginAccessIdentity":""}}],"DefaultCacheBehavior":{"TargetOriginId":"S3-my-react-app-bucket","ViewerProtocolPolicy":"redirect-to-https","AllowedMethods":{"Quantity":2,"Items":["GET","HEAD"]},"ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"}}},"Enabled":true,"Comment":"React app distribution"}'
+
+# Get CloudFront distribution URL
+aws cloudfront list-distributions
+```
+
+## Best Practices
+- Use AWS CLI v2 for all commands
+- Store sensitive data (e.g., Google client ID/secret, Cognito client ID) in AWS Secrets Manager
+- Enable MFA for AWS CLI access
+- Use least privilege principle for IAM roles and policies
+- Configure S3 bucket versioning and lifecycle policies
+- Enable CloudFront for faster content delivery and HTTPS
+- Test Cognito authentication flows in a staging environment
+- Use environment variables for React app to access Cognito configuration
+- Monitor AWS costs using AWS Budgets or Cost Explorer
+
+## Dependencies
+package.json for dependency management
+Key packages: react, next, typescript, @aws-amplify/auth, @mui/material, tailwindcss, cypress, aws-sdk
+
+## Global Rules
+@GlobalRules("AWS Configuration")
+- Always use AWS CLI or SDK for automation
+- Use environment variables for AWS credentials and configuration
+- Follow AWS Well-Architected Framework principles
+- Enable logging for S3 and Cognito using Amazon CloudWatch
+- Use AWS Parameter Store or Secrets Manager for sensitive data
+- Validate all CLI commands in a non-production environment first
+```

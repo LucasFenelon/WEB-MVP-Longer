@@ -1,0 +1,400 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+```yaml
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# React Specialist Configuration
+
+## Project Configuration
+- **Framework**: React (latest version) with TypeScript
+- **Environment**: Node.js
+- **Middleware**: NextJS
+- **Architecture**: Component-based with functional components and Hooks
+
+## Design Patterns
+- React Hooks (useState, useEffect, useContext)
+- Context API for state management
+- Component Composition and Container/Presentational patterns
+- Custom Hooks for reusable logic
+
+## UI Guidelines
+- Assets Location: `./ui` folder
+- Primary UI Library: Material UI
+- Secondary Styling: Tailwind CSS
+- Theme: Follow ThemeProvider definitions
+- Pages Development:
+  - Only develop pages matching `./ui/pages` folder
+  - Use iPhone 8 Plus images as responsive specifications
+  - Handle flexible content based on route requirements
+
+## Authentication
+- Technology: Google Firebase Authentication
+- Implementation:
+  - Use Firebase JavaScript SDK (`firebase/auth`)
+  - Clean abstraction layer in services
+  - Support for mock/real implementations
+  - Consistent auth service interface usage
+  - Support for sign-in methods: Email/Password, Google Sign-In, and Anonymous login
+
+## Development Standards
+### Code Style
+- ES6+ syntax required
+- TypeScript for type safety
+- Airbnb TypeScript/React style guide
+- Clear and concise code
+- No hardcoded data (use process.env)
+
+### Project Structure
+@ProjectStructure
+Root/
+├── app/                    # Next.js 13+ App Router
+│   ├── api/               # API routes
+│   ├── explore/          # Explore page
+│   ├── magazine-view/    # Magazine view
+│   ├── login/            # Login page
+│   ├── billing/          # Billing page
+│   ├── dashboards/       # Dashboards
+│   ├── integrations/     # Integrations
+│   ├── cvm/             # CVM related pages
+│   ├── settings/        # Settings page
+│   ├── article/         # Article pages
+│   ├── read/            # Reading view
+│   ├── card-view/       # Card view
+│   ├── title-view/      # Title view
+│   ├── onboarding/      # Onboarding flow
+│   ├── signup/          # Signup pages
+│   ├── layout.tsx       # Root layout
+│   ├── page.tsx         # Root page
+│   └── globals.css      # Global styles
+├── src/                  # Source code
+│   ├── components/      # Reusable components
+│   │   ├── navigation/  # Navigation components
+│   │   ├── billing/     # Billing components
+│   │   ├── news/        # News components
+│   │   ├── analysis/    # Analysis components
+│   │   ├── charts/      # Chart components
+│   │   ├── layout/      # Layout components
+│   │   ├── ui/          # UI components
+│   │   └── auth/        # Auth components
+│   ├── hooks/           # Custom React hooks
+│   ├── utils/           # Utility functions
+│   ├── services/        # Business logic
+│   ├── types/           # TypeScript types
+│   ├── contexts/        # React contexts
+│   └── styles/          # Component styles
+├── public/              # Static files
+├── cypress/             # E2E tests
+└── ui/                  # UI assets and resources
+
+### Styling Guidelines
+- Primary: Material UI components
+- Secondary: Tailwind CSS for custom needs
+- Theme: Material UI ThemeProvider
+- Approach: Mobile-first responsive design
+
+@ProjectContext("Web Portal")
+Language: TypeScript (latest stable version)
+Framework: React with Next.js for frontend development
+Environment: Node.js
+Authentication: Google Firebase Authentication (`firebase/auth`)
+State Management: React Context API and Custom Hooks
+UI Libraries: Material UI with Tailwind CSS for custom styling
+Testing: Cypress for E2E and component tests
+
+@DesignPatterns
+Use Custom Hooks for reusable logic (see useApi.ts example below)
+Implement Context API for state management
+Follow Component Composition and Container/Presentational patterns (see LoginForm.tsx example below)
+Use Error Boundaries for graceful error handling (see ErrorBoundary.tsx example below)
+Implement Service Layer for API interactions
+
+@GlobalRules("Code Style")
+Follow Airbnb TypeScript/React style guide
+Use TypeScript for type safety
+Write functional components with hooks
+Use ES6+ syntax (arrow functions, const/let, destructuring)
+Write concise, readable code with clear variable names
+Never hardcode sensitive data; use process.env
+Log function entry/exit and errors using appropriate log levels (see logger.ts example below)
+
+@FolderStructure
+Place React components in /src/components
+Place custom hooks in /src/hooks
+Place context providers in /src/contexts
+Place API utilities and services in /src/services
+Place types and interfaces in /src/types
+Place utility functions in /src/utils
+Place pages in /src/pages (Next.js convention)
+Place styles in /src/styles
+Place tests in /src/__tests__ and /cypress
+
+@BestPractices
+Use Next.js 13+ App Router conventions
+Keep components modular and reusable
+Implement proper error handling with Error Boundaries
+Write unit and integration tests
+Use proper TypeScript types
+Follow React's functional programming principles
+Implement proper form validation
+Use accessibility attributes (ARIA)
+
+@Dependencies
+package.json for dependency management
+Key packages: react, next, typescript, firebase, @mui/material, tailwindcss, cypress
+
+@ExampleStructure
+src/
+├── api/                  # API endpoints and configurations
+├── app/                  # App-specific configurations
+├── components/          
+│   ├── analysis/        # Analysis-related components
+│   ├── auth/            # Authentication components
+│   ├── billing/         # Billing-related components
+│   ├── charts/          # Chart components
+│   ├── demo/            # Demo components
+│   ├── layout/          # Layout components
+│   ├── navigation/      # Navigation components
+│   ├── news/            # News components
+│   └── ui/              # Reusable UI components
+├── contexts/            # React Context providers
+├── hooks/               # Custom React hooks
+├── pages/               # Next.js pages
+├── services/            # Business logic and services
+├── styles/              # Global styles and themes
+├── tests/               # Test configurations and helpers
+├── types/               # TypeScript type definitions
+└── utils/               # Utility functions and helpers
+
+@ExampleCode("Custom Hook with Error Handling and Logging (src/hooks/useApi.ts)")
+```typescript
+import { useState, useCallback } from 'react';
+import { Logger } from '../utils/logger';
+
+interface ApiHookOptions<T> {
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
+}
+
+export function useApi<T>(
+  apiFunction: (...args: any[]) => Promise<T>,
+  options: ApiHookOptions<T> = {}
+) {
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const execute = useCallback(async (...args: any[]) => {
+    try {
+      Logger.info(`API call started: ${apiFunction.name}`);
+      setIsLoading(true);
+      setError(null);
+      
+      const result = await apiFunction(...args);
+      setData(result);
+      options.onSuccess?.(result);
+      
+      Logger.info(`API call completed: ${apiFunction.name}`);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      Logger.error(`API call failed: ${apiFunction.name}`, error);
+      setError(error);
+      options.onError?.(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [apiFunction, options]);
+
+  return { execute, data, error, isLoading };
+}
+```
+
+@ExampleCode("React Component with Firebase Auth (src/components/features/auth/LoginForm.tsx)")
+```typescript
+import React from 'react';
+import { Logger } from '../../../utils/logger';
+import { useApi } from '../../../hooks/useApi';
+import { authService } from '../../../services/authService';
+import { Button } from '../../common/Button';
+
+interface LoginFormProps {
+  onLoginSuccess?: () => void;
+  onLoginError?: (error: Error) => void;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onLoginSuccess,
+  onLoginError
+}) => {
+  const { execute: handleGoogleLogin, isLoading } = useApi(async () => {
+    try {
+      Logger.info('Google login process started');
+      const response = await authService.signInWithGoogle();
+      Logger.info('Google login successful', { user: response.user?.email });
+      onLoginSuccess?.();
+      return response;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      Logger.error('Google login failed', err);
+      onLoginError?.(err);
+      throw err;
+    }
+  });
+
+  return (
+    <div className="flex flex-col items-center justify-center p-4">
+      <Button
+        onClick={() => handleGoogleLogin()}
+        disabled={isLoading}
+        variant="contained"
+        className="w-full max-w-md"
+        aria-label="Sign in with Google"
+      >
+        {isLoading ? 'Signing in...' : 'Sign in with Google'}
+      </Button>
+    </div>
+  );
+};
+```
+
+@ExampleCode("Logger Utility (src/utils/logger.ts)")
+```typescript
+type LogLevel = 'info' | 'error' | 'warn' | 'debug';
+
+class LoggerService {
+  private formatMessage(level: LogLevel, message: string, error?: Error) {
+    const timestamp = new Date().toISOString();
+    return `[${timestamp}] [${level.toUpperCase()}] ${message}${
+      error ? `\nError: ${error.message}\nStack: ${error.stack}` : ''
+    }`;
+  }
+
+  info(message: string, ...args: any[]) {
+    console.info(this.formatMessage('info', message), ...args);
+  }
+
+  error(message: string, error?: Error, ...args: any[]) {
+    console.error(this.formatMessage('error', message, error), ...args);
+  }
+
+  warn(message: string, ...args: any[]) {
+    console.warn(this.formatMessage('warn', message), ...args);
+  }
+
+  debug(message: string, ...args: any[]) {
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(this.formatMessage('debug', message), ...args);
+    }
+  }
+}
+
+export const Logger = new LoggerService();
+```
+
+@ExampleCode("Error Boundary Component (src/components/common/ErrorBoundary.tsx)")
+```typescript
+import React, { Component, ErrorInfo } from 'react';
+import { Logger } from '../../utils/logger';
+
+interface Props {
+  fallback?: React.ReactNode;
+  children: React.ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+export class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    Logger.error('Error caught by boundary', error, {
+      componentStack: errorInfo.componentStack,
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="p-4 bg-red-50 border border-red-200 rounded">
+          <h2 className="text-red-800">Something went wrong</h2>
+          <p className="text-red-600">{this.state.error?.message}</p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+@ExampleCode("Firebase Auth Service (src/services/authService.ts)")
+```typescript
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
+import { Logger } from '../utils/logger';
+
+// Firebase configuration (should be in environment variables)
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+interface AuthResponse {
+  user: User | null;
+  token?: string;
+}
+
+export class AuthService {
+  async signInWithGoogle(): Promise<AuthResponse> {
+    try {
+      Logger.info('AuthService: Initiating Google sign-in');
+      const result = await signInWithPopup(auth, googleProvider);
+      const token = await result.user.getIdToken();
+      Logger.info('AuthService: Google sign-in successful', { user: result.user.email });
+      return { user: result.user, token };
+    } catch (error) {
+      Logger.error('AuthService: Google sign-in failed', error instanceof Error ? error : new Error(String(error)));
+      throw error;
+    }
+  }
+
+  async logout(): Promise<void> {
+    try {
+      Logger.info('AuthService: Initiating logout');
+      await auth.signOut();
+      Logger.info('AuthService: Logout successful');
+    } catch (error) {
+      Logger.error('AuthService: Logout failed', error instanceof Error ? error : new Error(String(error)));
+      throw error;
+    }
+  }
+}
+
+export const authService = new AuthService();
+```
